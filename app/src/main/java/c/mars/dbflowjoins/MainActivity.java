@@ -3,14 +3,9 @@ package c.mars.dbflowjoins;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.SelectListTransaction;
 import com.raizlabs.android.dbflow.sql.language.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Join;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
@@ -19,14 +14,36 @@ import java.util.Random;
 
 import c.mars.dbflowjoins.tables.Box;
 import c.mars.dbflowjoins.tables.Box_Table;
-import c.mars.dbflowjoins.tables.Item_Table;
 import c.mars.dbflowjoins.tables.Item;
+import c.mars.dbflowjoins.tables.Item_Table;
 import c.mars.dbflowjoins.tables.Rocket;
 import rx.Observable;
 import rx.functions.Action1;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
+
+    int n = 0;
+    Action1<Rocket> loadVanAction = van -> {
+        Observable<Box> boxObservable = Observable.just("A", "B", "C", "D").map(s -> new Box(s + van.getName().charAt(0))).cache();
+        boxObservable.forEach(box -> {
+                    box.loadToVan(van);
+                    box.save();
+                }
+        );
+        Random random = new Random();
+
+        boxObservable
+                .forEach(box -> {
+                    if (n % 2 == 0) {
+                        Item item = new Item(String.valueOf(n));
+                        item.save();
+                        box.setItem(item);
+                        box.save();
+                    }
+                    ++n;
+                });
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,28 +60,6 @@ public class MainActivity extends AppCompatActivity {
     void reset() {
         Delete.tables(Item.class, Box.class, Rocket.class);
     }
-
-    int n = 0;
-    Action1<Rocket> loadVanAction = van -> {
-        Observable<Box> boxObservable = Observable.just("A", "B", "C", "D").map(s -> new Box(s + van.getName().charAt(0))).cache();
-        boxObservable.forEach(box -> {
-                    box.loadToVan(van);
-                    box.save();
-                }
-        );
-        Random random=new Random();
-
-        boxObservable
-                .forEach(box -> {
-                    if(n%2==0) {
-                        Item item = new Item(String.valueOf(n));
-                        item.save();
-                        box.setItem(item);
-                        box.save();
-                    }
-                    ++n;
-        });
-    };
 
     void create() {
         Observable.just("SpaceShipOne", "Vostok").map(Rocket::new).forEach(van -> {

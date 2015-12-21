@@ -30,10 +30,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
 
-//    apt 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
-//    compile "com.raizlabs.android:DBFlow-Core:2.2.1"
-//    compile "com.raizlabs.android:DBFlow:2.2.1"
-
     apt 'com.github.Raizlabs.DBFlow:dbflow-processor:3.0.0-beta1'
     compile "com.github.Raizlabs.DBFlow:dbflow-core:3.0.0-beta1"
     compile "com.github.Raizlabs.DBFlow:dbflow:3.0.0-beta1"
